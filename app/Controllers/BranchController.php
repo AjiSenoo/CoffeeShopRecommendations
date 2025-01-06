@@ -84,7 +84,7 @@ class BranchController extends ResourceController
 
     private function getTravelTime($origin, $destination)
     {
-        $apiKey = '5b3ce3597851110001cf62485ac63974d9934adbba924b45cc1eea1b'; // Replace with your API key
+        $apiKey = getenv('ORS_API_KEY'); // Replace with your API key
         $url = "https://api.openrouteservice.org/v2/matrix/driving-car";
 
         $locations = [
