@@ -1,0 +1,32 @@
+# Exclude writable directory contents except index.html
+writable/*
+!writable/index.html
+
+# Exclude environment configuration
+.env
+env
+
+# Exclude log files
+*.log
+
+# Exclude vendor dependencies
+vendor/*
+!vendor/index.html
+
+# Exclude uploaded files
+public/uploads/*
+!public/uploads/index.html
+
+# Exclude IDE/editor settings
+.vscode/
+.idea/
+
+# Exclude OS-specific files
+.DS_Store
+Thumbs.db
+
+# Exclude backup and temporary files
+*.bak
+*.swp
+
+
