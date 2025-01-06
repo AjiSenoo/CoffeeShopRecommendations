@@ -35,20 +35,44 @@ class BranchController extends ResourceController
     
         $recommendations = [];
         $unreachableBranches = [];
+        $maxTravelTime = 0;
+        $maxQueueLength = 0;
     
+        //max travel time and queue length
         foreach ($branches as $branch) {
-            $origin = [$longitude, $latitude]; // User's location
-            $destination = [$branch['longitude'], $branch['latitude']]; // Branch location
+            $origin = [$longitude, $latitude];
+            $destination = [$branch['longitude'], $branch['latitude']];
+    
+            $travelTime = $this->getTravelTime($origin, $destination);
+    
+            if ($travelTime !== null) {
+                $maxTravelTime = max($maxTravelTime, $travelTime);
+                $maxQueueLength = max($maxQueueLength, $branch['queue_length']);
+            }
+        }
+    
+        // scoring
+        foreach ($branches as $branch) {
+            $origin = [$longitude, $latitude];
+            $destination = [$branch['longitude'], $branch['latitude']];
     
             $travelTime = $this->getTravelTime($origin, $destination);
     
             if ($travelTime === null) {
-                // Log and collect unreachable branches
                 $unreachableBranches[] = $branch['name'];
-                continue; // Skip this branch
+                continue; // Skip unreachable branches
             }
     
-            $score = $travelTime + ($branch['queue_length'] * 0.5); // Weighted score
+            // Normalize travel time and queue length
+            $normalizedTravelTime = $maxTravelTime > 0 ? $travelTime / $maxTravelTime : 1;
+            $normalizedQueueLength = $maxQueueLength > 0 ? $branch['queue_length'] / $maxQueueLength : 1;
+    
+            // Predefined weights
+            $travelWeight = 0.7; 
+            $queueWeight = 0.3;  
+    
+            // Calculate final score
+            $score = ($normalizedTravelTime * $travelWeight) + ($normalizedQueueLength * $queueWeight);
     
             $recommendations[] = [
                 'branch' => $branch['name'],
@@ -58,12 +82,15 @@ class BranchController extends ResourceController
             ];
         }
     
-        // Sort recommendations by score (ascending)
+        //sort recom
         usort($recommendations, fn($a, $b) => $a['score'] <=> $b['score']);
+    
+        //limit
+        $topRecommendations = array_slice($recommendations, 0, 3);
     
         // Build response
         $response = [
-            'recommendations' => $recommendations,
+            'recommendations' => $topRecommendations,
         ];
     
         if (!empty($unreachableBranches)) {
@@ -71,7 +98,7 @@ class BranchController extends ResourceController
             $response['message'] = 'The following branches are not reachable by car: ' . implode(', ', $unreachableBranches);
         }
     
-        if (empty($recommendations)) {
+        if (empty($topRecommendations)) {
             return $this->respond([
                 'message' => 'No reachable coffee shop branches by car from your location.',
                 'unreachable_branches' => $unreachableBranches
@@ -79,12 +106,12 @@ class BranchController extends ResourceController
         }
     
         return $this->respond($response);
-    }
+    }    
     
 
     private function getTravelTime($origin, $destination)
     {
-        $apiKey = getenv('ORS_API_KEY'); // Replace with your API key
+        $apiKey = getenv('ORS_API_KEY'); 
         $url = "https://api.openrouteservice.org/v2/matrix/driving-car";
 
         $locations = [
