@@ -55,32 +55,74 @@
     <script>
         // Function to fetch all branches
         function fetchAllBranches() {
-            const allBranchesDiv = document.getElementById("allBranches");
-            allBranchesDiv.innerHTML = ""; // Clear previous branches
+    const allBranchesDiv = document.getElementById("allBranches");
+    allBranchesDiv.innerHTML = ""; // Clear previous branches
 
-            fetch("<?= site_url('/branches') ?>", {
-                method: "GET",
+    fetch("<?= site_url('/branches') ?>", {
+        method: "GET",
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data && data.length > 0) {
+            allBranchesDiv.innerHTML = data
+                .map(
+                    (branch) => `
+                        <div class="branch">
+                            <strong>Branch Name:</strong> ${branch.name}<br>
+                            <strong>Location:</strong> ${branch.latitude}, ${branch.longitude}<br>
+                            <strong>Current Queue Length:</strong> ${branch.queue_length}<br>
+                            <button onclick="giveReview(${branch.id})">Give Review</button>
+                            <button onclick="window.location.href='<?= site_url('/branch/reviews') ?>/${branch.id}'">Show Reviews</button>
+                        </div>
+                    `
+                )
+                .join("");
+        } else {
+            allBranchesDiv.innerHTML = `<p>No branches found.</p>`;
+        }
+    })
+    .catch((error) => {
+        allBranchesDiv.innerHTML = `<p>Error fetching branches.</p>`;
+        console.error("Error:", error);
+    });
+}
+
+
+        // Function to give a review
+        function giveReview(branchId) {
+            const rating = prompt("Enter your rating (1-5):");
+            if (!rating || isNaN(rating) || rating < 1 || rating > 5) {
+                alert("Please enter a valid rating between 1 and 5.");
+                return;
+            }
+
+            const review = prompt("Enter your review:");
+            if (!review || review.trim() === "") {
+                alert("Please enter a valid review.");
+                return;
+            }
+
+            fetch("<?= site_url('/customer/submit-review') ?>", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    branch_id: branchId,
+                    rating: parseInt(rating),
+                    review: review.trim(),
+                }),
             })
             .then((response) => response.json())
             .then((data) => {
-                if (data && data.length > 0) {
-                    allBranchesDiv.innerHTML = data
-                        .map(
-                            (branch) => `
-                                <div class="branch">
-                                    <strong>Branch Name:</strong> ${branch.name}<br>
-                                    <strong>Location:</strong> ${branch.latitude} , ${branch.longitude} <br>
-                                    <strong>Current Queue Length:</strong> ${branch.queue_length}
-                                </div>
-                            `
-                        )
-                        .join("");
+                if (data.success) {
+                    alert(data.message || "Review submitted successfully!");
                 } else {
-                    allBranchesDiv.innerHTML = `<p>No branches found.</p>`;
+                    alert(data.message || "Failed to submit review.");
                 }
             })
             .catch((error) => {
-                allBranchesDiv.innerHTML = `<p>Error fetching branches.</p>`;
+                alert("Error submitting your review.");
                 console.error("Error:", error);
             });
         }
@@ -148,11 +190,6 @@
                 return;
             }
 
-            console.log("Sending data:", {
-                branch_id: branchId,
-                cups: parseInt(cups),
-            });
-
             fetch("<?= site_url('/add-to-queue') ?>", {
                 method: "POST",
                 headers: {
@@ -165,7 +202,6 @@
             })
             .then((response) => response.json())
             .then((data) => {
-                console.log('Response:', data); // Log the response
                 if (data.success) {
                     alert(data.message || "Order added successfully!");
                     location.reload(); // Reload to update queue data

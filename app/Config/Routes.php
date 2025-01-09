@@ -16,6 +16,8 @@ $routes->get('customer/register', 'Customer::register');
 $routes->post('customer/store', 'Customer::store');
 $routes->get('customer/dashboard', 'Customer::dashboard');
 $routes->post('customer/add-queue', 'CustomerController::addToQueue');
+$routes->post('/customer/submit-review', 'Customer::submitReview');
+
 
 // Admin Routes
 $routes->get('admin/login', 'Admin::login');
@@ -28,6 +30,7 @@ $routes->post('/admin/subtract-queue', 'Admin::subtractQueue');
 // Branch Routes
 $routes->get('/branches', 'BranchController::index');
 $routes->post('/recommend', 'BranchController::recommend');
+$routes->get('/branch/reviews/(:num)', 'BranchController::showReviews/$1');
 
 // Queue Routes
 $routes->post('/add-to-queue', 'QueueController::addToQueue');

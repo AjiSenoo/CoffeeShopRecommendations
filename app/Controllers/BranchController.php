@@ -145,4 +145,24 @@ class BranchController extends ResourceController
         $data = json_decode($response, true);
         return $data['durations'][0][1] ?? null; // Return travel time in seconds
     }
+
+    public function showReviews($branchId)
+{
+    $reviewModel = new \App\Models\ReviewModel();
+    $branchModel = new \App\Models\BranchModel();
+
+    $branch = $branchModel->find($branchId);
+
+    if (!$branch) {
+        return redirect()->to('/customer/view-branches')->with('error', 'Branch not found.');
+    }
+
+    $reviews = $reviewModel->where('branch_id', $branchId)->findAll();
+
+    return view('branch_reviews', [
+        'branch' => $branch,
+        'reviews' => $reviews,
+    ]);
+}
+
 }

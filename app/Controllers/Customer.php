@@ -18,26 +18,25 @@ class Customer extends BaseController
 
     public function authenticate()
     {
-    $model = new \App\Models\UserModel();
-
-    $email = $this->request->getPost('email');
-    $password = $this->request->getPost('password');
-
-    // Find user by email
-    $user = $model->where('email', $email)->first();
-
-    if ($user && password_verify($password, $user['password'])) {
-        // Authentication successful
-        if ($user['role'] === 'customer') {
+        $email = trim($this->request->getPost('email'));
+        $password = trim($this->request->getPost('password'));
+    
+        $customerModel = new \App\Models\UserModel();
+        $customer = $customerModel->where('email', $email)->first();
+    
+        if ($customer && password_verify($password, $customer['password'])) {
+            // Set session data
+            session()->set([
+                'customer_id' => $customer['id'], // Store customer_id in session
+                'email' => $customer['email'],
+                'isLoggedIn' => true,
+            ]);
+    
             return redirect()->to('/customer/dashboard');
-        } else {
-            return redirect()->to('/admin/login');
         }
-    } else {
-        // Authentication failed
-        return redirect()->back()->with('error', 'Invalid login credentials');
-    }
-    }
+    
+        return redirect()->back()->with('error', 'Invalid email or password.');
+    }    
 
 
     public function store()
@@ -60,5 +59,28 @@ class Customer extends BaseController
     {
     return view('find_recommendations');
     }
+
+    public function submitReview()
+    {
+    $branchId = $this->request->getJSON(true)['branch_id'];
+    $customerId = session()->get('customer_id'); // Assuming customer ID is stored in the session
+    $rating = $this->request->getJSON(true)['rating'];
+    $review = $this->request->getJSON(true)['review'];
+
+    if (!$branchId || !$rating || !$review || $rating < 1 || $rating > 5) {
+        return $this->response->setJSON(['success' => false, 'message' => 'Invalid input.']);
+    }
+
+    $reviewModel = new \App\Models\ReviewModel();
+    $reviewModel->insert([
+        'branch_id' => $branchId,
+        'customer_id' => $customerId,
+        'rating' => $rating,
+        'review' => $review,
+    ]);
+
+    return $this->response->setJSON(['success' => true, 'message' => 'Review submitted successfully!']);
+    }
+
 
 }
