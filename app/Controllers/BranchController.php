@@ -24,8 +24,10 @@ class BranchController extends ResourceController
     // Recommend branch
     public function recommend()
     {
-        $latitude = $this->request->getVar('latitude');
-        $longitude = $this->request->getVar('longitude');
+        $data = $this->request->getJSON(true); // Parse JSON data
+    
+        $latitude = $data['latitude'] ?? null;
+        $longitude = $data['longitude'] ?? null;
     
         if (!$latitude || !$longitude) {
             return $this->fail('Latitude and Longitude are required');
