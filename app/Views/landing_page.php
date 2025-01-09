@@ -4,36 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cafe Finder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f1e9;
-            color: #4a3f35;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #fefae0;
+            color: #606c38;
             margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            text-align: center;
         }
         .container {
-            text-align: center;
+            padding: 20px;
         }
         h1 {
             font-size: 24px;
             margin-bottom: 20px;
         }
         button {
-            background-color: #8c7b75;
-            color: #fff;
+            background-color: #f4a261;
+            color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             margin: 10px;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
         }
         button:hover {
-            background-color: #6d6057;
+            background-color: #e76f51;
         }
     </style>
 </head>
