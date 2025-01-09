@@ -24,23 +24,23 @@ class BranchController extends ResourceController
     // Recommend branch
     public function recommend()
     {
-        $data = $this->request->getJSON(true); // Parse JSON data
-    
-        $latitude = $data['latitude'] ?? null;
-        $longitude = $data['longitude'] ?? null;
-    
+        $latitude = $this->request->getVar('latitude');
+        $longitude = $this->request->getVar('longitude');
+        
         if (!$latitude || !$longitude) {
             return $this->fail('Latitude and Longitude are required');
         }
     
-        $branches = $this->branchModel->findAll();
+        $branchModel = new \App\Models\BranchModel();
+        $reviewModel = new \App\Models\ReviewModel();
     
+        $branches = $branchModel->findAll();
         $recommendations = [];
         $unreachableBranches = [];
         $maxTravelTime = 0;
         $maxQueueLength = 0;
     
-        //max travel time and queue length
+        // Calculate max travel time and queue length
         foreach ($branches as $branch) {
             $origin = [$longitude, $latitude];
             $destination = [$branch['longitude'], $branch['latitude']];
@@ -53,11 +53,10 @@ class BranchController extends ResourceController
             }
         }
     
-        // scoring
+        // Calculate recommendations and mean ratings
         foreach ($branches as $branch) {
             $origin = [$longitude, $latitude];
             $destination = [$branch['longitude'], $branch['latitude']];
-    
             $travelTime = $this->getTravelTime($origin, $destination);
     
             if ($travelTime === null) {
@@ -71,24 +70,31 @@ class BranchController extends ResourceController
     
             // Predefined weights
             $travelWeight = 0.7; 
-            $queueWeight = 0.3;  
+            $queueWeight = 0.3;
     
             // Calculate final score
             $score = ($normalizedTravelTime * $travelWeight) + ($normalizedQueueLength * $queueWeight);
     
+            // Calculate mean rating for the branch
+            $meanRating = $reviewModel->where('branch_id', $branch['id'])
+                                      ->selectAvg('rating')
+                                      ->get()
+                                      ->getRow()
+                                      ->rating;
+    
             $recommendations[] = [
-                'branch_id' => $branch['id'],
                 'branch' => $branch['name'],
                 'travel_time' => round($travelTime / 60, 1), // Convert seconds to minutes
                 'queue_length' => $branch['queue_length'],
+                'mean_rating' => $meanRating ? round($meanRating, 1) : 'No ratings yet', // Handle no ratings case
                 'score' => $score,
             ];
         }
     
-        //sort recom
+        // Sort recommendations by score
         usort($recommendations, fn($a, $b) => $a['score'] <=> $b['score']);
     
-        //limit
+        // Limit to top recommendations
         $topRecommendations = array_slice($recommendations, 0, 3);
     
         // Build response
@@ -109,7 +115,8 @@ class BranchController extends ResourceController
         }
     
         return $this->respond($response);
-    }    
+    }
+       
     
 
     private function getTravelTime($origin, $destination)

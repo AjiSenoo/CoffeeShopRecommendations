@@ -129,58 +129,60 @@
 
         // Function to fetch location and recommendations
         function getLocationAndRecommend() {
-            const loadingText = document.getElementById("loading");
-            const recommendationsDiv = document.getElementById("recommendations");
-            loadingText.style.display = "block"; // Show loading text
-            recommendationsDiv.innerHTML = ""; // Clear previous recommendations
+    const loadingText = document.getElementById("loading");
+    const recommendationsDiv = document.getElementById("recommendations");
+    loadingText.style.display = "block"; // Show loading text
+    recommendationsDiv.innerHTML = ""; // Clear previous recommendations
 
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
 
-                    fetch("<?= site_url('/recommend') ?>", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            latitude: latitude,
-                            longitude: longitude,
-                        }),
-                    })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        loadingText.style.display = "none"; // Hide loading text
-
-                        if (data.recommendations) {
-                            recommendationsDiv.innerHTML = data.recommendations
-                                .map(
-                                    (rec) => `
-                                        <div class="recommendation">
-                                            <strong>Branch:</strong> ${rec.branch}<br>
-                                            <strong>Travel Time:</strong> ${rec.travel_time} mins<br>
-                                            <strong>Queue Length:</strong> ${rec.queue_length}<br>
-                                            <button onclick="placeOrder(${rec.branch_id})">Order</button>
-                                        </div>
-                                    `
-                                )
-                                .join("");
-                        } else {
-                            recommendationsDiv.innerHTML = `<p>${data.message || "No recommendations available."}</p>`;
-                        }
-                    })
-                    .catch((error) => {
-                        loadingText.style.display = "none"; // Hide loading text
-                        recommendationsDiv.innerHTML = `<p>Error fetching recommendations.</p>`;
-                        console.error("Error:", error);
-                    });
-                });
-            } else {
+            fetch("<?= site_url('/recommend') ?>", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    latitude: latitude,
+                    longitude: longitude,
+                }),
+            })
+            .then((response) => response.json())
+            .then((data) => {
                 loadingText.style.display = "none"; // Hide loading text
-                alert("Geolocation is not supported by your browser.");
-            }
-        }
+
+                if (data.recommendations) {
+                    recommendationsDiv.innerHTML = data.recommendations
+                        .map(
+                            (rec) => `
+                                <div class="recommendation">
+                                    <strong>Branch:</strong> ${rec.branch}<br>
+                                    <strong>Travel Time:</strong> ${rec.travel_time} mins<br>
+                                    <strong>Queue Length:</strong> ${rec.queue_length}<br>
+                                    <strong>Mean Rating:</strong> ${rec.mean_rating}<br>
+                                    <button onclick="placeOrder(${rec.branch_id})">Order</button>
+                                </div>
+                            `
+                        )
+                        .join("");
+                } else {
+                    recommendationsDiv.innerHTML = `<p>${data.message || "No recommendations available."}</p>`;
+                }
+            })
+            .catch((error) => {
+                loadingText.style.display = "none"; // Hide loading text
+                recommendationsDiv.innerHTML = `<p>Error fetching recommendations.</p>`;
+                console.error("Error:", error);
+            });
+        });
+    } else {
+        loadingText.style.display = "none"; // Hide loading text
+        alert("Geolocation is not supported by your browser.");
+    }
+}
+
 
         // Function to place an order
         function placeOrder(branchId) {
