@@ -12,6 +12,7 @@ $routes->get('customer/login', 'Customer::login');
 $routes->get('customer/register', 'Customer::register');
 $routes->post('customer/store', 'Customer::store');
 $routes->get('customer/dashboard', 'Customer::dashboard');
+$routes->post('/add-to-queue', 'QueueController::addToQueue');
 
 
 // ------ don't change this ------
