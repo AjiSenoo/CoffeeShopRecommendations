@@ -5,23 +5,29 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
+
+// Home Routes
 $routes->get('/', 'Home::landingPage');
+
+// Customer Routes
 $routes->post('customer/authenticate', 'Customer::authenticate');
-$routes->get('admin/login', 'Admin::login');
 $routes->get('customer/login', 'Customer::login');
 $routes->get('customer/register', 'Customer::register');
 $routes->post('customer/store', 'Customer::store');
 $routes->get('customer/dashboard', 'Customer::dashboard');
-$routes->post('/add-to-queue', 'QueueController::addToQueue');
+$routes->post('customer/add-queue', 'CustomerController::addToQueue');
 
+// Admin Routes
+$routes->get('admin/login', 'Admin::login');
+$routes->post('admin/authenticate', 'Admin::authenticate');
+$routes->get('admin/logout', 'Admin::logout');
+$routes->get('admin/dashboard', 'Admin::dashboard');
+$routes->post('/admin/add-queue', 'Admin::addQueue');
+$routes->post('/admin/subtract-queue', 'Admin::subtractQueue');
 
-// ------ don't change this ------
-// Routes.php
+// Branch Routes
 $routes->get('/branches', 'BranchController::index');
 $routes->post('/recommend', 'BranchController::recommend');
-// Admin routes
-$routes->post('admin/manage-queue', 'AdminController::manageQueue');
 
-// Customer routes
-$routes->post('customer/add-queue', 'CustomerController::addToQueue');
-// ------- until this line --------
+// Queue Routes
+$routes->post('/add-to-queue', 'QueueController::addToQueue');

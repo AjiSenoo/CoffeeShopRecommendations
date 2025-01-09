@@ -6,12 +6,18 @@
     <title>Admin Login</title>
 </head>
 <body>
-    <form action="<?= site_url('admin/authenticate') ?>" method="post">
+    <h1>Admin Login</h1>
+    <?php if (session()->getFlashdata('error')): ?>
+        <p style="color: red;"><?= session()->getFlashdata('error') ?></p>
+    <?php endif; ?>
+    <form action="<?= site_url('admin/authenticate') ?>" method="POST">
         <label for="username">Username:</label>
-        <input type="text" name="username" id="username" required><br>
+        <input type="text" id="username" name="username" required>
+        <br>
         <label for="password">Password:</label>
-        <input type="password" name="password" id="password" required><br>
-        <button type="submit">Log In</button>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Login</button>
     </form>
 </body>
 </html>

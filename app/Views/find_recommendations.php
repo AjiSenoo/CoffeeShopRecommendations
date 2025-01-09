@@ -40,8 +40,51 @@
             border-radius: 5px;
             background-color: #fff;
         }
+        #allBranches {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .branch {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #fff;
+        }
     </style>
     <script>
+        // Function to fetch all branches
+        function fetchAllBranches() {
+            const allBranchesDiv = document.getElementById("allBranches");
+            allBranchesDiv.innerHTML = ""; // Clear previous branches
+
+            fetch("<?= site_url('/branches') ?>", {
+                method: "GET",
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data && data.length > 0) {
+                    allBranchesDiv.innerHTML = data
+                        .map(
+                            (branch) => `
+                                <div class="branch">
+                                    <strong>Branch Name:</strong> ${branch.name}<br>
+                                    <strong>Location:</strong> ${branch.latitude} , ${branch.longitude} <br>
+                                    <strong>Current Queue Length:</strong> ${branch.queue_length}
+                                </div>
+                            `
+                        )
+                        .join("");
+                } else {
+                    allBranchesDiv.innerHTML = `<p>No branches found.</p>`;
+                }
+            })
+            .catch((error) => {
+                allBranchesDiv.innerHTML = `<p>Error fetching branches.</p>`;
+                console.error("Error:", error);
+            });
+        }
+
         // Function to fetch location and recommendations
         function getLocationAndRecommend() {
             const loadingText = document.getElementById("loading");
@@ -142,5 +185,9 @@
     <button onclick="getLocationAndRecommend()">Find Recommendations</button>
     <p id="loading" style="display:none;">Processing... Please wait.</p>
     <div id="recommendations"></div>
+
+    <h1>All Branches</h1>
+    <button onclick="fetchAllBranches()">View All Branches</button>
+    <div id="allBranches"></div>
 </body>
 </html>
