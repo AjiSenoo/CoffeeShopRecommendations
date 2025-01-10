@@ -83,6 +83,7 @@ class BranchController extends ResourceController
                                       ->rating;
     
             $recommendations[] = [
+                'branch_id' => $branch['id'],
                 'branch' => $branch['name'],
                 'travel_time' => round($travelTime / 60, 1), // Convert seconds to minutes
                 'queue_length' => $branch['queue_length'],
