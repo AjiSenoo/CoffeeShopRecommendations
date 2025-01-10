@@ -28,16 +28,28 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-        button {
+        .login-button {
             background-color: #f4a261;
             color: white;
             border: none;
             padding: 10px;
             border-radius: 5px;
             cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
         }
-        button:hover {
+        .login-button:hover {
             background-color: #e76f51;
+        }
+        .register-link {
+            margin-top: 15px;
+            display: block;
+            font-size: 14px;
+            text-decoration: none;
+            color: #606c38;
+        }
+        .register-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -48,8 +60,8 @@
         <input type="email" name="email" id="email" required>
         <label for="password">Password:</label>
         <input type="password" name="password" id="password" required>
-        <button type="submit">Log In</button>
+        <button type="submit" class="login-button">Log In</button>
     </form>
-    <button onclick="location.href='<?= site_url('customer/register') ?>'">Register</button>
+    <a href="<?= site_url('customer/register') ?>" class="register-link">Register</a>
 </body>
 </html>

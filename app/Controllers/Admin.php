@@ -44,7 +44,7 @@ class Admin extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/admin/login');
+        return redirect()->to('/CafeFinder');
     }
 
     public function dashboard()
@@ -52,12 +52,25 @@ class Admin extends BaseController
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/admin/login');
         }
-
+    
+        $branchId = session()->get('branch_id');
+        $branchModel = new \App\Models\BranchModel();
+        $reviewModel = new \App\Models\ReviewModel();
+    
+        $branch = $branchModel->find($branchId);
+        $meanRating = $reviewModel
+            ->selectAvg('rating', 'mean_rating')
+            ->where('branch_id', $branchId)
+            ->get()
+            ->getRow()
+            ->mean_rating ?? 0;
+    
         return view('admin_dashboard', [
             'username' => session()->get('username'),
-            'branch_id' => session()->get('branch_id'),
+            'branch_name' => $branch['name'],
+            'mean_rating' => number_format($meanRating, 2),
         ]);
-    }
+    }    
 
     public function subtractQueue()
     {
@@ -117,4 +130,25 @@ class Admin extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Branch not found.']);
         }
     }
+
+    public function showReviews()
+{
+    if (!session()->get('isLoggedIn')) {
+        return redirect()->to('/admin/login');
+    }
+
+    $branchId = session()->get('branch_id');
+
+    $branchModel = new \App\Models\BranchModel();
+    $reviewModel = new \App\Models\ReviewModel();
+
+    $branch = $branchModel->find($branchId);
+    $reviews = $reviewModel->where('branch_id', $branchId)->findAll();
+
+    return view('admin_reviews', [
+        'branch' => $branch,
+        'reviews' => $reviews,
+    ]);
+}
+
 }

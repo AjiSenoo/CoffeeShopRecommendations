@@ -11,6 +11,12 @@ class Customer extends BaseController
         return view('customer_login');
     }
 
+    public function logout()
+    {
+        session()->destroy();
+        return redirect()->to('/CafeFinder');
+    }
+
     public function register()
     {
         return view('customer_register');
@@ -29,6 +35,7 @@ class Customer extends BaseController
             session()->set([
                 'customer_id' => $customer['id'], // Store customer_id in session
                 'email' => $customer['email'],
+                'username' => $customer['username'],
                 'isLoggedIn' => true,
             ]);
     
@@ -57,8 +64,12 @@ class Customer extends BaseController
 
     public function dashboard()
     {
-    return view('find_recommendations');
-    }
+        $data = [
+            'username' => session()->get('username') // Assuming the username is stored in the session
+        ];
+    
+        return view('find_recommendations', $data);
+    }    
 
     public function submitReview()
     {

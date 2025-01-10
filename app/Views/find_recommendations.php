@@ -175,7 +175,7 @@
                                             <strong>Branch:</strong> ${rec.branch}<br>
                                             <strong>Travel Time:</strong> ${rec.travel_time} mins<br>
                                             <strong>Queue Length:</strong> ${rec.queue_length}<br>
-                                            <strong>Mean Rating:</strong> ${rec.mean_rating}<br>
+                                            <strong>Rating:</strong> ${rec.mean_rating}<br>
                                             <button onclick="placeOrder(${rec.branch_id})">Order</button>
                                         </div>
                                     `
@@ -232,6 +232,7 @@
     </script>
 </head>
 <body>
+    <h2>Welcome, <?= esc($username) ?></h2>
     <h1>Find Coffee Shop Recommendations</h1>
     <button onclick="getLocationAndRecommend()">Find Recommendations</button>
     <p id="loading" style="display:none;">Processing... Please wait.</p>
@@ -240,5 +241,7 @@
     <h1>All Branches</h1>
     <button onclick="fetchAllBranches()">View All Branches</button>
     <div id="allBranches"></div>
+
+    <button onclick="window.location.href='<?= site_url('/customer/logout') ?>'">Log Out</button>
 </body>
 </html>
